@@ -1,0 +1,8 @@
+.DS_Store
+**/.DS_Store
+
+gfs_landingpage/node_modules/
+gfs_landingpage/.next/
+gfs_landingpage/out/
+gfs_landingpage/.vercel/
+gfs_landingpage/.env*
