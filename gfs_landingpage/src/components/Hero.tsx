@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const trust = [
   "Installazione chiavi in mano",
   "Tecnici certificati",
@@ -5,7 +7,7 @@ const trust = [
 ];
 
 const highlights = [
-  { value: "-65%", label: "Costo in bolletta" },
+  { value: "-85%", label: "Costo in bolletta" },
   { value: "30 gg", label: "Tempo medio installazione" },
   { value: "+1.2k", label: "Impianti residenziali" },
 ];
@@ -19,18 +21,24 @@ export default function Hero() {
       <div className="pointer-events-none absolute right-20 bottom-10 h-32 w-32 rounded-full border border-emerald-200/80 bg-white/60 blur-xl spin-slow" />
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 pb-20 pt-16 lg:flex-row lg:items-center lg:justify-between">
-        <div className="space-y-7">
+        <div
+          className="reveal space-y-7"
+          data-reveal
+          style={{ transitionDelay: "80ms" }}
+        >
           <p className="text-xs uppercase tracking-[0.3em] text-blue-500/70">
-            Energia pulita per la tua casa
+            GFS Solutions · Pannelli fotovoltaici a Padova
           </p>
-          <h1 className="display-font text-4xl font-semibold leading-tight text-slate-900 md:text-6xl">
-            Riduci la bolletta fino al 65% con un impianto fotovoltaico
-            intelligente.
+          <h1 className="display-font hero-title-animate text-4xl font-semibold leading-tight text-slate-900 md:text-6xl">
+            <span className="hero-title-glow">
+              Riduci la bolletta fino al 85% con un impianto fotovoltaico
+              intelligente.
+            </span>
           </h1>
           <p className="max-w-xl text-lg text-slate-600">
-            Progettiamo, installiamo e seguiamo il tuo impianto residenziale
-            chiavi in mano. Zero pensieri, massimo risparmio, più valore alla tua
-            casa.
+            GFS Solutions progetta, installa e gestisce pratiche incentivi per
+            pannelli fotovoltaici a Padova. Zero pensieri, massimo risparmio,
+            più valore alla tua casa.
           </p>
           <div className="flex flex-wrap gap-4">
             <a
@@ -58,7 +66,11 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="floaty relative w-full max-w-md rounded-[28px] border border-blue-100 bg-white/90 p-6 shadow-xl shadow-blue-100">
+        <div
+          className="reveal floaty relative w-full max-w-md rounded-[28px] border border-blue-100 bg-white/90 p-6 shadow-xl shadow-blue-100"
+          data-reveal
+          style={{ transitionDelay: "160ms" }}
+        >
           <div className="absolute -top-6 right-6 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
             Simulazione live
           </div>
@@ -72,7 +84,7 @@ export default function Hero() {
                   1.980€
                 </span>
                 <span className="text-sm font-semibold text-emerald-600">
-                  +52%
+                  -85%
                 </span>
               </div>
               <div className="mt-4 h-2 rounded-full bg-blue-100">

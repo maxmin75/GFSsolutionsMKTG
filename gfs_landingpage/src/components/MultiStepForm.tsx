@@ -26,6 +26,8 @@ export default function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>({
     firstName: "",
@@ -87,7 +89,36 @@ export default function MultiStepForm() {
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!validateStep()) return;
-    setSubmitted(true);
+    setErrors([]);
+    setServerError(null);
+    setIsSubmitting(true);
+
+    const payload = new FormData();
+    payload.append("firstName", form.firstName);
+    payload.append("lastName", form.lastName);
+    payload.append("city", form.city);
+    payload.append("homeType", form.homeType);
+    payload.append("monthlyBill", form.monthlyBill);
+    payload.append("email", form.email);
+    payload.append("phone", form.phone);
+    payload.append("consent", String(form.consent));
+    if (form.billImage) payload.append("billImage", form.billImage);
+
+    fetch("/api/leads", {
+      method: "POST",
+      body: payload,
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const detail = await response.json().catch(() => null);
+          throw new Error(detail?.error || "Invio non riuscito.");
+        }
+        setSubmitted(true);
+      })
+      .catch((error: Error) => {
+        setServerError(error.message);
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   const onFileChange = (file: File | null) => {
@@ -120,7 +151,10 @@ export default function MultiStepForm() {
 
   return (
     <section id="form" className="mx-auto w-full max-w-4xl px-6 py-20">
-      <div className="rounded-[32px] border border-blue-100 bg-white p-8 shadow-lg shadow-blue-100">
+      <div
+        className="reveal rounded-[32px] border border-blue-100 bg-white p-8 shadow-lg shadow-blue-100"
+        data-reveal
+      >
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-blue-500/70">
@@ -137,7 +171,7 @@ export default function MultiStepForm() {
             </div>
             <div className="mt-2 h-2 rounded-full bg-blue-50">
               <div
-                className="h-2 rounded-full bg-blue-600 transition-all"
+                className="h-2 rounded-full bg-blue-600 transition-all duration-700"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -148,9 +182,9 @@ export default function MultiStepForm() {
           {steps.map((step, index) => (
             <span
               key={step}
-              className={`rounded-full px-3 py-1 ${
+              className={`step-pill rounded-full px-3 py-1 ${
                 index === currentStep
-                  ? "bg-blue-100 text-blue-700"
+                  ? "step-pill--active bg-blue-100 text-blue-700"
                   : "bg-slate-100 text-slate-500"
               }`}
             >
@@ -308,6 +342,11 @@ export default function MultiStepForm() {
               ))}
             </div>
           )}
+          {serverError && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-600">
+              {serverError}
+            </div>
+          )}
 
           <div className="flex flex-wrap items-center justify-between gap-4">
             <button
@@ -329,9 +368,10 @@ export default function MultiStepForm() {
             ) : (
               <button
                 type="submit"
-                className="rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200"
+                disabled={isSubmitting}
+                className="rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 disabled:opacity-70"
               >
-                Invia richiesta
+                {isSubmitting ? "Invio in corso..." : "Invia richiesta"}
               </button>
             )}
           </div>

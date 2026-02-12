@@ -26,29 +26,35 @@ function useCountUp(value: number, duration = 800) {
 
 export default function Simulator() {
   const [monthly, setMonthly] = useState(160);
+  const [withStorage, setWithStorage] = useState(true);
+  const [season, setSeason] = useState<"estate" | "inverno">("estate");
 
   const result = useMemo(() => {
     const annual = monthly * 12;
-    const reduction = 0.55;
-    const savings = Math.round(annual * reduction);
-    const payback = Math.max(4, Math.round(12000 / savings));
+    const baseReduction = 0.82;
+    const storageBoost = withStorage ? 0.06 : 0;
+    const seasonalFactor = season === "estate" ? 1.08 : 0.75;
+    const reduction = Math.min(baseReduction + storageBoost, 0.92);
+    const savings = Math.round(annual * reduction * seasonalFactor);
     return {
       savings,
       reductionPercent: Math.round(reduction * 100),
-      payback,
+      seasonalFactor: Math.round(seasonalFactor * 100),
     };
-  }, [monthly]);
+  }, [monthly, withStorage, season]);
 
   const savingsAnimated = useCountUp(result.savings);
   const reductionAnimated = useCountUp(result.reductionPercent);
-  const paybackAnimated = useCountUp(result.payback);
 
   return (
     <section
       id="simulatore"
       className="mx-auto w-full max-w-6xl px-6 py-20"
     >
-      <div className="rounded-[32px] border border-blue-100 bg-white p-8 shadow-lg shadow-blue-100">
+      <div
+        className="reveal rounded-[32px] border border-blue-100 bg-white p-8 shadow-lg shadow-blue-100"
+        data-reveal
+      >
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-blue-500/70">
@@ -62,6 +68,68 @@ export default function Simulator() {
               stima immediata di risparmio, riduzione costi e tempo di rientro
               investimento.
             </p>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-blue-100 bg-white p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  Configurazione impianto
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setWithStorage(false)}
+                    className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                      withStorage
+                        ? "border border-slate-200 text-slate-500"
+                        : "border border-blue-200 bg-blue-50 text-blue-700"
+                    }`}
+                  >
+                    Senza accumulo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWithStorage(true)}
+                    className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                      withStorage
+                        ? "border border-blue-200 bg-blue-50 text-blue-700"
+                        : "border border-slate-200 text-slate-500"
+                    }`}
+                  >
+                    Con accumulo
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-blue-100 bg-white p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  Stagione
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSeason("estate")}
+                    className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                      season === "estate"
+                        ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : "border border-slate-200 text-slate-500"
+                    }`}
+                  >
+                    Estate
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSeason("inverno")}
+                    className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                      season === "inverno"
+                        ? "border border-blue-200 bg-blue-50 text-blue-700"
+                        : "border border-slate-200 text-slate-500"
+                    }`}
+                  >
+                    Inverno
+                  </button>
+                </div>
+              </div>
+            </div>
 
             <div className="mt-6 rounded-2xl bg-blue-50 p-6">
               <label className="text-sm font-semibold text-slate-700">
@@ -92,7 +160,11 @@ export default function Simulator() {
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-2xl border border-blue-100 bg-white p-5">
+            <div
+              className="reveal rounded-2xl border border-blue-100 bg-white p-5"
+              data-reveal
+              style={{ transitionDelay: "80ms" }}
+            >
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
                 Risparmio annuo stimato
               </p>
@@ -100,7 +172,11 @@ export default function Simulator() {
                 {savingsAnimated.toLocaleString("it-IT")}€
               </p>
             </div>
-            <div className="rounded-2xl border border-blue-100 bg-white p-5">
+            <div
+              className="reveal rounded-2xl border border-blue-100 bg-white p-5"
+              data-reveal
+              style={{ transitionDelay: "140ms" }}
+            >
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
                 Riduzione costi
               </p>
@@ -108,16 +184,29 @@ export default function Simulator() {
                 {reductionAnimated}%
               </p>
             </div>
-            <div className="rounded-2xl border border-blue-100 bg-white p-5">
+            <div
+              className="reveal rounded-2xl border border-blue-100 bg-white p-5"
+              data-reveal
+              style={{ transitionDelay: "200ms" }}
+            >
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                Rientro investimento
+                Differenza stagionale
               </p>
               <p className="display-font mt-2 text-3xl text-slate-900">
-                {paybackAnimated} anni
+                {result.seasonalFactor}%
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Rendimento stimato in {season}.
               </p>
             </div>
-            <div className="rounded-2xl bg-emerald-50 p-5 text-sm text-emerald-800">
-              Include installazione chiavi in mano e monitoraggio intelligente.
+            <div
+              className="reveal rounded-2xl bg-emerald-50 p-5 text-sm text-emerald-800"
+              data-reveal
+              style={{ transitionDelay: "260ms" }}
+            >
+              {withStorage
+                ? "Include accumulo per aumentare l’autoconsumo."
+                : "Configurazione base senza accumulo."}
             </div>
           </div>
         </div>
